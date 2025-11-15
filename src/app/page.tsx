@@ -1,65 +1,92 @@
-import Image from "next/image";
+// src/app/page.tsx
+"use client";
+
+import { useState } from "react";
+import MapPicker from "@/component/MapPicker";
+import { recommendPlants } from "@/lib/recommendPlants";
 
 export default function Home() {
+  const [location, setLocation] = useState<{ lng: number; lat: number } | null>(null);
+  const [plants, setPlants] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleSelect = async ({ lng, lat }: { lng: number; lat: number }) => {
+    setLocation({ lng, lat });
+    setLoading(true);
+    const recs = await recommendPlants(lat, lng);
+    setPlants(recs);
+    setLoading(false);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white font-sans">
+      {/* Header */}
+
+      <main className="max-w-6xl mx-auto p-6">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Map */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4 text-green-800">Pick a Planting Spot</h2>
+            <MapPicker onLocationSelect={handleSelect} />
+            {location && (
+              <p className="mt-3 text-sm text-gray-600">
+                Selected: <strong>{location.lng.toFixed(4)}°, {location.lat.toFixed(4)}°</strong>
+              </p>
+            )}
+          </div>
+
+          {/* Recommendations */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4 text-green-800">
+              {location ? "Recommended for This Spot" : "Tap the map to begin"}
+            </h2>
+
+            {loading && (
+              <p className="text-gray-500 animate-pulse">Analyzing soil, sun, and climate...</p>
+            )}
+
+            <div className="space-y-4">
+              {plants.map((plant, i) => (
+                <div
+                  key={i}
+                  className="bg-white p-5 rounded-xl shadow-md border border-green-100 flex gap-4 hover:shadow-lg transition"
+                >
+                  <div className="bg-green-100 border-2 border-dashed rounded-xl w-20 h-20 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-bold text-lg text-green-800">{plant.name}</h3>
+                    <p className="text-sm text-gray-600">
+                      Drought: <span className="text-yellow-600">{'★'.repeat(plant.drought)}</span> | 
+                      Sun: <span className="text-orange-500">{'☀'.repeat(plant.sun)}</span>
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">{plant.soil} soil • Native to Mediterranean</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {plants.length > 0 && (
+              <button className="mt-6 w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition">
+                Export Planting Plan (PDF)
+              </button>
+            )}
+          </div>
         </div>
       </main>
+
+      <footer className="text-center text-xs text-gray-500 py-6">
+        © 2025 LeafTwin • Built for Greek Municipalities • @wisper2009
+      </footer>
     </div>
+  );
+}
+
+// Leaf Logo Component
+function LeafLogo() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 40 40" className="inline">
+      <path d="M20 2C10 2 2 10 2 20s8 18 18 18 18-8 18-18S30 2 20 2z" fill="none" stroke="currentColor" strokeWidth="2"/>
+      <path d="M20 10c-3 0-5 3-5 7 0 2 1 4 3 5 1-1 2-3 2-5 0-4-2-7-5-7z" fill="currentColor"/>
+      <path d="M20 18v8m-4-4h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
   );
 }
