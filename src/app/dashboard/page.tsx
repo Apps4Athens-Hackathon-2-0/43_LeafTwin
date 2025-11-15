@@ -37,30 +37,12 @@ export default function Dashboard() {
           {/* Map */}
           <div className="lg:col-span-2">
             <h2 className="text-xl font-semibold mb-4 text-green-800">Χάρτης Φυτών</h2>
-            <div className="relative h-96 lg:h-full rounded-xl overflow-hidden shadow-lg">
-              <MapPicker onLocationSelect={handleMapClick} />
-              {plants.map((plant) => (
-                <div
-                  key={plant.id}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: `${plant.mapX}%`, top: `${plant.mapY}%` }}
-                >
-                  <div
-                    className={`w-4 h-4 rounded-full border-2 cursor-pointer transition-all ${
-                      selectedPlant?.id === plant.id
-                        ? "bg-green-600 border-green-800 scale-150"
-                        : plant.health === "critical"
-                        ? "bg-red-500 border-red-700"
-                        : plant.health === "warning"
-                        ? "bg-yellow-500 border-yellow-700"
-                        : "bg-green-500 border-green-700"
-                    }`}
-                    title={plant.name}
-                    onClick={() => setSelectedPlant(plant)}
-                  />
-                </div>
-              ))}
-            </div>
+            <MapPicker 
+              onLocationSelect={handleMapClick}
+              plants={plants}
+              selectedPlant={selectedPlant}
+              onPlantClick={setSelectedPlant}
+            />
           </div>
 
           {/* Plant List */}
