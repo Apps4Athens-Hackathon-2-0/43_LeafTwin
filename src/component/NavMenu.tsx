@@ -43,6 +43,16 @@ export default function NavMenu() {
           >
             Ψηφιακοί Δίδυμοι
           </Link>
+          <Link
+            href="/profile"
+            className={`px-4 py-2 rounded-lg font-medium transition ${
+              isActive("/profile")
+                ? "bg-green-700 text-white"
+                : "hover:bg-green-500"
+            }`}
+          >
+            Profile
+          </Link>
         </nav>
       </div>
     </header>
