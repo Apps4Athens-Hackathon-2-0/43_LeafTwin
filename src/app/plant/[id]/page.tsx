@@ -65,7 +65,13 @@ export default function PlantPage({ params }: { params: Promise<{ id: string }> 
     if (!qrRef.current) return;
     setDownloading(true);
     try {
-      const canvas = await html2canvas(qrRef.current, { scale: 2 });
+      const canvas = await html2canvas(qrRef.current, { 
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+      });
       const link = document.createElement("a");
       link.download = `${plant.name}-QR.png`;
       link.href = canvas.toDataURL("image/png");
@@ -85,7 +91,9 @@ export default function PlantPage({ params }: { params: Promise<{ id: string }> 
       const canvas = await html2canvas(qrRef.current, {
         scale: 2,
         backgroundColor: "#ffffff",
+        logging: false,
         useCORS: true,
+        allowTaint: true,
       });
       const img = canvas.toDataURL("image/png");
       const pdf = new jsPDF();
@@ -107,15 +115,7 @@ export default function PlantPage({ params }: { params: Promise<{ id: string }> 
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <header className="bg-green-600 text-white p-6 shadow-xl">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-3">
-            <LeafLogo />
-            <h1 className="text-2xl font-bold">LeafTwin</h1>
-          </Link>
-          <Link href="/dashboard" className="text-sm underline">Dashboard</Link>
-        </div>
-      </header>
+      
 
       <main className="max-w-7xl mx-auto p-6 grid lg:grid-cols-2 gap-8">
         {/* 3D + Info */}
@@ -131,16 +131,31 @@ export default function PlantPage({ params }: { params: Promise<{ id: string }> 
 
         {/* QR + Report */}
         <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold text-green-700 mb-3">QR Code για το Φυτό</h3>
-            <div ref={qrRef} className="bg-white p-6 rounded-xl shadow-md text-center">
-              {plantUrl ? (
-                <div className="flex flex-col items-center gap-2">
-                  <QRCode value={plantUrl} size={180} />
-                  <p className="text-xs text-gray-600 mt-2 break-all">{plantUrl}</p>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500">Φόρτωση URL...</p>
+          <div className="bg-white rounded-xl shadow-lg p-4">
+            <h3 className="text-lg font-semibold mb-3 text-center" style={{ color: '#15803d' }}>
+              QR Code Φυτού
+            </h3>
+            <div ref={qrRef} style={{ backgroundColor: '#ffffff', padding: '16px', textAlign: 'center' }}>
+              {plantUrl && (
+                <>
+                  <div style={{ display: 'inline-block', width: '140px', height: '140px' }}>
+                    <QRCode 
+                      value={plantUrl} 
+                      size={140}
+                      style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                      viewBox="0 0 256 256"
+                    />
+                  </div>
+                  <p style={{ 
+                    fontSize: '12px', 
+                    color: '#6b7280', 
+                    marginTop: '12px', 
+                    wordBreak: 'break-all',
+                    padding: '0 8px'
+                  }}>
+                    {plantUrl}
+                  </p>
+                </>
               )}
             </div>
             <div className="flex gap-3 mt-4">
