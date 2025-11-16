@@ -53,6 +53,16 @@ export default function NavMenu() {
           >
             Profile
           </Link>
+          <Link
+            href="/about"
+            className={`px-4 py-2 rounded-lg font-medium transition ${
+              isActive("/about")
+                ? "bg-green-700 text-white"
+                : "hover:bg-green-500"
+            }`}
+          >
+            About
+          </Link>
         </nav>
       </div>
     </header>
