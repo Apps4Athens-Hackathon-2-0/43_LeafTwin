@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LeafTwin 🌿
 
-## Getting Started
+**Ψηφιακά δίδυμα για κάθε αστικό δέντρο — χωρίς αισθητήρες**  
+*Μια εφαρμογή που σώζει δέντρα, εξοικονομεί νερό και μετατρέπει πολίτες σε πράσινους ήρωες.*
 
-First, run the development server:
+---
+
+## Το Πρόβλημα
+
+Οι πόλεις στην Ελλάδα χάνουν τα δέντρα τους.  
+Η Αθήνα, η Θεσσαλονίκη, τα Χανιά — παντού, τα αστικά δέντρα υποφέρουν από:
+
+- Έλλειψη φροντίδας (κλάδεμα, λίπανση, πότισμα)
+- Ασθένειες που δεν εντοπίζονται έγκαιρα
+- Κλιματική αλλαγή: καύσωνες, ξηρασία
+- Έλλειψη δεδομένων: οι δήμοι δεν ξέρουν ποιο δέντρο χρειάζεται τι
+- Απουσία εμπλοκής πολιτών: *"Δεν είναι δικό μου δέντρο"*
+
+> **Αποτέλεσμα:** Μέχρι το 2030, η Ελλάδα μπορεί να χάσει το **30%** των αστικών δέντρων της — και μαζί τους, σκιά, καθαρό αέρα, ψυχική υγεία.
+
+---
+
+## Η Λύση: LeafTwin
+
+**LeafTwin** είναι το **ψηφιακό δίδυμο κάθε αστικού δέντρου** — **χωρίς αισθητήρες, χωρίς κόστος εγκατάστασης**.
+
+### Τι κάνει;
+| Λειτουργία | Περιγραφή |
+|----------|----------|
+| QR Code | Κάθε δέντρο έχει QR → σκανάρεται από πολίτες |
+| 3D Μοντέλο | Ζωντανή απεικόνιση υγείας (πράσινο/κίτρινο/κόκκινο) |
+| AI Πρόβλεψη | Πότε να κλαδέψεις, να ποτίσεις, να λιπάνεις |
+| Φωτογραφίες Πολιτών | Upload → AI εντοπίζει ασθένειες (π.χ. *Powdery Mildew*) |
+| Πόντοι & Δώρα | 10 πόντοι/αναφορά, 50 για ασθένεια → καφές, φυτό, t-shirt |
+
+### Ποια η αξία;
+| Στοιχείο | Όφελος |
+|--------|-------|
+| **Δήμοι** | Εξοικονόμηση **70%** σε συντήρηση |
+| **Πολίτες** | Πόντοι → δώρα, αίσθημα ευθύνης |
+| **Περιβάλλον** | **+20%** επιβίωση δέντρων |
+| **Κοινωνία** | Ενεργοί πολίτες, πράσινη συνείδηση |
+
+> **Μια εφαρμογή. Χιλιάδες δέντρα σώζονται. Μια πόλη γίνεται πιο πράσινη.**
+
+---
+
+## Λειτουργίες (100% Έτοιμες)
+
+| Σελίδα | URL | Status |
+|-------|-----|--------|
+| **Αρχική / Χάρτης** | `/` | ΕΤΟΙΜΟ |
+| **Σελίδα Φυτού** | `/plant/PLT-001` | ΕΤΟΙΜΟ |
+| **QR + Download** | PNG/PDF | ΕΤΟΙΜΟ |
+| **3D Μοντέλο** | `@react-three/fiber` | ΕΤΟΙΜΟ |
+| **Αναφορά + AI** | `/report/[id]` | ΕΤΟΙΜΟ |
+| **Προφίλ Χρήστη** | `/profile` | ΕΤΟΙΜΟ |
+| **Κατάστημα** | `/shop` | ΕΤΟΙΜΟ |
+| **About** | `/about` | ΕΤΟΙΜΟ |
+
+---
+
+## Τεχνικά
+
+- **Framework**: Next.js 15 (App Router)
+- **UI**: Tailwind CSS + Lucide Icons
+- **3D**: `@react-three/fiber` + `drei`
+- **QR**: `react-qr-code` + `html2canvas` + `jsPDF`
+- **AI**: Local rules engine (`gardeningAI.ts`, `predictiveTwin.ts`)
+- **Data**: `localStorage` (εύκολα αντικαθίσταται με Supabase/Prisma)
+- **Γλώσσα**: 100% Ελληνικά
+
+---
+
+## Demo Flow
+
+1. **Σκανάρετε** QR → `/plant/PLT-001`  
+   → 3D γυρίζει, συμβουλή: *"Πότισμα σε 2 μέρες"*
+2. **Αναφορά** → Upload φωτο → AI: *"Υγιές"* → **+10 πόντοι**
+3. **Προφίλ** → Δείτε αναφορές + πόντους
+4. **Κατάστημα** → Εξαργυρώστε καφέ με 100 πόντους
+
+---
+
+## Η Ομάδα
+
+| Όνομα | Ρόλος | Εταιρεία |
+|------|------|---------|
+| **Christos Kontomitros** | Backend Engineer | t-digital by Deutsche Telekom |
+
+> *"@ckontomitros | Αθήνα, Ελλάδα"*
+
+---
+
+## Deploy
 
 ```bash
+git clone https://github.com/ckontomitros/leaftwin.git
+cd leaftwin
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
