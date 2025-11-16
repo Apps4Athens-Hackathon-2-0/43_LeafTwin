@@ -1,74 +1,110 @@
 // src/app/plant/[id]/page.tsx
-import { notFound } from "next/navigation";
-import Plant3DModel from "@/component/Plant3DModel";
-import { getPlantById, getAllPlants, type  Plant } from "@/lib/plantData";
+"use client";
+
+import { use, useRef, useState } from "react";  // ADD: import { use } from "react"
+import QRCode from "react-qr-code";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import Link from "next/link";
+import Plant3DModel from "@/component/Plant3DModel";
+import { Plant, getPlantById } from "@/lib/plantData";  // Keep your data fetch
 
-interface PageProps {
-  params: { id: string };
-}
+// UPDATE: params is now Promise<{ id: string }>
+export default function PlantPage({ params }: { params: Promise<{ id: string }> }) {
+  // UNWRAP: Use React.use() to get the resolved params
+  const { id } = use(params);  // This unwraps the Promise
 
-// THIS IS THE KEY: Pre-render all plant pages
-export async function generateStaticParams() {
-  const plants = await getAllPlants();
-  return plants.map((plant) => ({
-    id: plant.id,
-  }));
-}
+  const plant = getPlantById(id);  // Now id is resolved
+  const qrRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
 
-export default async function PlantPage({ params }: PageProps) {
-  const { id } = await params;
+  if (!plant) return <div>Φυτό δεν βρέθηκε</div>;
 
-  // Debug: Log the ID
-  console.log("Plant ID from params:", id);
+  const plantUrl = `${window.location.origin}/plant/${id}`;
 
-  if (!id) {
-    notFound();
-  }
+  const downloadPNG = async () => {
+    setDownloading(true);
+    const canvas = await html2canvas(qrRef.current!);
+    const link = document.createElement("a");
+    link.download = `${id}-QR.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+    setDownloading(false);
+  };
 
-  const plant = await getPlantById(id);
-
-  if (!plant) {
-    notFound();
-  }
+  const downloadPDF = async () => {
+    setDownloading(true);
+    const canvas = await html2canvas(qrRef.current!);
+    const img = canvas.toDataURL("image/png");
+    const pdf = new jsPDF();
+    pdf.addImage(img, "PNG", 10, 10, 80, 80);
+    pdf.text(`Φυτό: ${id}`, 10, 100);
+    pdf.text(`URL: ${plantUrl}`, 10, 110);
+    pdf.save(`${id}-QR.pdf`);
+    setDownloading(false);
+  };
+  console.log(plant);
 
   return (
-    
-      <main className="max-w-7xl mx-auto p-6">
-        <div className="grid lg:grid-cols-2 gap-8">
-          <div>
-            <h2 className="text-2xl font-bold text-green-800 mb-4">{plant.name}</h2>
-            <Plant3DModel plant={plant} />
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+      <header className="bg-green-600 text-white p-6 shadow-xl">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-3">
+            <LeafLogo />
+            <h1 className="text-2xl font-bold">LeafTwin</h1>
+          </Link>
+          <Link href="/dashboard" className="text-sm underline">Dashboard</Link>
+        </div>
+      </header>
 
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-green-700">Πληροφορίες Φυτού</h3>
-              <div className="mt-3 space-y-3">
-                <InfoRow label="ID" value={plant.id} />
-                <InfoRow label="Είδος" value={plant.species} />
-                <InfoRow label="Κατάσταση" value={<HealthBadge health={plant.health} />} />
-                <InfoRow label="Υγρασία" value={`${plant.soilMoisture}%`} />
-                <InfoRow label="Πότισμα σε" value={
-                  <span className={plant.waterIn === 0 ? "text-red-600 font-bold" : ""}>
-                    {plant.waterIn === 0 ? "ΣΗΜΕΡΑ!" : `${plant.waterIn} ημ.`}
-                  </span>
-                } />
-                <InfoRow label="Φυτεύτηκε" value={new Date(plant.plantedDate).toLocaleDateString("el-GR")} />
-              </div>
-            </div>
-
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <strong>Συμβουλή:</strong> {getCareTip(plant)}
-              </p>
-            </div>
+      <main className="max-w-7xl mx-auto p-6 grid lg:grid-cols-2 gap-8">
+        {/* 3D + Info */}
+        <div>
+          <h2 className="text-2xl font-bold text-green-800 mb-4">{id}</h2>
+          <Plant3DModel plant={plant} />
+          <div className="mt-6 space-y-3">
+            <InfoRow label="Είδος" value={plant.species} />
+            <InfoRow label="Υγεία" value={<HealthBadge health={plant.health} />} />
+            <InfoRow label="Πότισμα σε" value={`${plant.waterIn} ημ.`} />
           </div>
         </div>
-      </main>
-  );
-}
 
+        {/* QR + Report */}
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold text-green-700 mb-3">QR Code για το Φυτό</h3>
+            <div ref={qrRef} className="bg-white p-6 rounded-xl shadow-md text-center">
+              <QRCode value={plantUrl} size={180} />
+              <p className="text-xs text-gray-600 mt-2 break-all">{plantUrl}</p>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={downloadPNG}
+                disabled={downloading}
+                className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50"
+              >
+                {downloading ? "..." : "PNG"}
+              </button>
+              <button
+                onClick={downloadPDF}
+                disabled={downloading}
+                className="flex-1 bg-green-600 text-white py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
+              >
+                {downloading ? "..." : "PDF"}
+              </button>
+            </div>
+          </div>
+
+          <Link href={`/report/${id}`}>
+            <button className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium hover:bg-orange-700">
+              Αναφορά Υγείας + Φωτογραφία
+            </button>
+          </Link>
+        </div>
+      </main>
+    </div>
+  );
+  }
 // Components
 function LeafLogo() {
   return (
